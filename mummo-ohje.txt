@@ -1,0 +1,95 @@
+﻿Käyttäjien luominen, sisään- ja uloskirjaus AWS Amplifyn avulla (Angular kehittäjän ohje)
+
+(Windows-käyttäjä: muista käynnistää komentorivieditori järjestelmävalvojan oikeuksilla!)
+1. (tarvittaessa) 
+	- Asenna nodejs ja Angular CLI
+	- Luo AWS-tili
+
+2. Siirry Program Files\nodejs -hakemistoon ja asenna ja konfiguroi amplify:
+	> npm install -g @aws-amplify/cli
+	> amplify configure
+-> Toimi ohjeiden mukaan
+	- kirjaudu AWS konsoliin
+	- luo uusi IAM-käyttäjä ja ota talteen Access key ID ja Secret access key
+	- syötä ym. avaimet konsoliin
+2  Luo Angular projekti: 
+	> ng new projektin_nimi
+3. Siirry projektihakemistoon: 
+	> cd projektin_nimi
+3. Asenna amplify (ohjeet täällä: https://aws-amplify.github.io/docs/js/angular)
+	> npm install --save aws-amplify
+	> npm install --save aws-amplify-angular
+4. Asenna amplify UI-komponentit: 
+	> npm install @aws-amplify/ui
+5. Alusta amplify (komentorivieditorilla)
+	> amplify init
+-> Valitse editoriksi Atom
+-> Valitse app typeksi javascript
+-> Valitse javascript frameworkiksi angular
+-> Seuraavat kysymykset: hyväksy oletusasetus
+-> Valitse aws profiiliksi default
+
+6. Ota käyttöön AWS-autorisointipalvelu
+	> amplify add auth
+-> Valitse oletuskonfiguraatio
+	> amplify push
+
+7. Käynnistä Atom -editori järjestelmänvalvojana, avaa projektihakemisto ja tee seuraavat muutokset
+	- tsconfig.json: lisää compilerOptions -osioon rivi "allowJs": true
+	- src/tsconfig.app.json: muokkaa
+		"compilerOptions": {
+    			"types" : ["node"]
+	  	}
+	- src/main.ts: lisää
+		import Amplify from 'aws-amplify';
+		import amplify from './aws-exports';
+		Amplify.configure(amplify);
+	- src/app/app.module.ts: lisää
+		import { AmplifyAngularModule, AmplifyService } from 'aws-amplify-angular';
+		imports: [BrowserModule, CommonModule, AmplifyAngularModule]
+		providers: [AmplifyService]
+	- jos käytät Angular6-versiota tai uudempaa, lisää
+		- src/polyfills.ts: (window as any).global = window;
+		- index.html, <head> -osio: 
+		<script>
+    
+			if (global === undefined) {
+        
+				var global = window;
+    
+			}
+		
+</script>
+	- src/app/app.component.ts: lisää
+		import { AmplifyService } from 'aws-amplify-angular';
+		import awsconfig from '../aws-exports';
+
+8. Käynnistä sovellus
+	> ng serve --open
+	-> sovellus avautuu oletusselaimessa (osoitteesta localhost:4200)
+
+9. Sign-in/sign-up/signout -toiminnon lisääminen
+	Kts. ohjeet täältä: https://aws-amplify.github.io/docs/js/angular#authenticator
+	- src/styles.css: lisää 
+		@import '~aws-amplify-angular/theme.css';		
+	- src/app/app.component.html: poista "turhat" rivit ja lisää
+		<amplify-authenticator></amplify-authenticator>		
+
+(Mahdollinen virhetilanne: ei user poolia)
+
+-> Saat täysin toimivan kirjauskäyttöliittymän oletusasetuksilla!
+
+Login-komponentti ja kirjautumislomakkeen kustomointi
+
+1. Luo login -komponentti
+	> ng generate component login
+
+2. Siirrä app.component.ts -> login.component.ts
+	import { AmplifyService } from 'aws-amplify-angular';
+
+	import awsconfig from '../aws-exports';
+   Siirrä app.component.html -> login.component.html
+   Lisää app.component.html
+	<app-login></app-login>	
+
+
