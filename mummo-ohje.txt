@@ -84,12 +84,45 @@ Login-komponentti ja kirjautumislomakkeen kustomointi
 1. Luo login -komponentti
 	> ng generate component login
 
-2. Siirrä app.component.ts -> login.component.ts
-	import { AmplifyService } from 'aws-amplify-angular';
+2. Luo fieldconfig.ts
+	export class FieldConfig {
+		label: string;
+		key: string;
+		required: boolean;	
+		displayOrder: number;
+		type: string;
+	}
 
-	import awsconfig from '../aws-exports';
-   Siirrä app.component.html -> login.component.html
-   Lisää app.component.html
-	<app-login></app-login>	
+3. Lisää login.component.ts -tiedostoon:
+	import { FieldConfig } from '../fieldconfig';
+	alusta muuttuja signupconfig (katso koodista)
 
+4. Lisää login.component.html -tiedostoon:
+	 <amplify-authenticator [signUpConfig] = "signupconfig"></amplify-authenticator>
+
+5. Muuta app.component.html -tiedostossa
+	<amplify-authenticator></amplify-authenticator>	 -> <app-login></app-login>	
+
+
+Kirjautumistietojen haku
+
+1. Luo login service -komponentti (kts. koodi)
+
+2. Muokkaa app.component.ts -tiedostoa
+	- Login service -injektio constructoriin:   constructor(private loginService: LoginService)
+	- Properties signedIn, user ja Username
+		signedIn: boolean;
+  user: any;
+  username: string;
+	- ngOnInit -funktio
+	- getLoginStatus-funktio
+	- onLogout-funktio
+	- import { LoginService } from './login.service';
+	- aws-importit poistetaan turhina
+
+3. Muokkaa app.component.html -tiedostoa:
+	Lisää ehdolliset sisään- ja uloskirjautumiset riippuen siitä onko käyttäjä kirjautuneena vai ei
+
+
+	
 
